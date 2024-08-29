@@ -1,0 +1,32 @@
+{
+  "name": "elo-mmr",
+  "version": "1.0.0",
+  "description": "A multiplayer ELO ranking system",
+  "main": "./dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "prepublish": "npm run build",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "files": ["dist", "LICENSE", "README.md"],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chad3814/elo-mmr.git"
+  },
+  "keywords": [
+    "elo",
+    "elo-mmr",
+    "ranking"
+  ],
+  "author": "Chad Walker <chad@cwalker.dev>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/chad3814/elo-mmr/issues"
+  },
+  "homepage": "https://github.com/chad3814/elo-mmr#readme",
+  "type": "module",
+  "devDependencies": {
+    "@types/node": "^22.5.1",
+    "typescript": "^5.5.4"
+  }
+}
