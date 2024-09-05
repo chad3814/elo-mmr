@@ -1,14 +1,23 @@
 import { DEFAULT_MU, DEFAULT_SIG } from "./elo_mmr";
-import { PlayerEvent } from "./player_event";
-import { Rating } from "./rating";
+import { Rating, RatingJSON } from "./rating";
 import robustAverage from "./robust_average";
-import { TanhTerm } from "./tanh_term";
+import { TanhTerm, TanhTermJSON } from "./tanh_term";
 
+export type PlayerJSON = {
+    approximatePosterior: RatingJSON;
+    normalFactor: RatingJSON;
+    updateTime?: number;
+    logisticFactors: TanhTermJSON[];
+    numEvents: number;
+}
 export class Player {
     private normalFactor = new Rating(DEFAULT_MU, DEFAULT_SIG);
     private logisticFactors: TanhTerm[] = [];
 
-    constructor(public eventHistory: PlayerEvent[], public approximatePosterior: Rating, public updateTime?: Date, public deltaTime?: number) { }
+    private _numEvents = 0;
+    get numEvents() { return this._numEvents; };
+
+    constructor(public approximatePosterior: Rating, public updateTime?: Date, public deltaTime?: number) { }
 
     addNoiseBest(sigNoise: number, transferSpeed: number): void {
         const newPosterior = this.approximatePosterior.withNoise(sigNoise);
@@ -36,22 +45,6 @@ export class Player {
         }
     }
 
-    updateRating(rating: Rating, performanceScore: number): void {
-        // assumes that a placeholder history item has been pushed
-        if (this.eventHistory.length < 1) {
-            throw new Error('Expected placeholder history item');
-        }
-        const lastEvent = this.eventHistory[this.eventHistory.length - 1];
-        if (lastEvent.rating.mu !== 0 || lastEvent.rating.sig !== 0 || lastEvent.performanceScore !== 0) {
-            throw new Error('Expected placeholder history item');
-        }
-
-        this.approximatePosterior = rating;
-        lastEvent.rating.mu = Math.round(rating.mu);
-        lastEvent.rating.sig = Math.round(rating.sig);
-        lastEvent.performanceScore = Math.round(performanceScore);
-    }
-
     updateRatingWithLogistic(performance: Rating, maxHistory?: number): void {
         if (maxHistory != null) {
             while (this.logisticFactors.length >= maxHistory) {
@@ -66,8 +59,8 @@ export class Player {
         }
         this.logisticFactors.push(TanhTerm.fromRating(performance));
 
-        const newRating = this.newApproximatePosterior(performance.sig);
-        this.updateRating(newRating, performance.mu);
+        this.approximatePosterior = this.newApproximatePosterior(performance.sig);
+        this._numEvents++;
     }
 
     newApproximatePosterior(performanceSig: number): Rating {
@@ -82,10 +75,29 @@ export class Player {
         return new Rating(mu, sig);
     }
 
+    toJSON(): PlayerJSON {
+        return {
+            approximatePosterior: this.approximatePosterior.toJSON(),
+            normalFactor: this.normalFactor.toJSON(),
+            updateTime: this.updateTime?.getTime(),
+            logisticFactors: this.logisticFactors.map(lf => lf.toJSON()),
+            numEvents: this._numEvents,
+        };
+    }
+
+    static fromJSON(obj: PlayerJSON): Player {
+        const player = new Player(Rating.fromJSON(obj.approximatePosterior), obj.updateTime ? new Date(obj.updateTime) : undefined);
+        player.normalFactor = Rating.fromJSON(obj.normalFactor);
+        player.logisticFactors = obj.logisticFactors.map((lf: any) => TanhTerm.fromJSON(lf));
+        player._numEvents = obj.numEvents;
+        return player;
+    }
+
     dup(): Player {
-        const player = new Player(this.eventHistory.map(eh => eh.dup()), this.approximatePosterior.dup(), this.updateTime, this.deltaTime);
+        const player = new Player(this.approximatePosterior.dup(), this.updateTime, this.deltaTime);
         player.normalFactor = this.normalFactor.dup();
         player.logisticFactors = this.logisticFactors.map(lf => lf.dup());
+        player._numEvents = this._numEvents;
         return player;
     }
 }

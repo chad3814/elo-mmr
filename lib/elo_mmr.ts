@@ -1,6 +1,5 @@
 import { computeLikelihoodSum } from "./compute_likelihood_sum";
 import { Player } from "./player";
-import { PlayerEvent } from "./player_event";
 import { Rating } from "./rating";
 import { solveNewton } from "./solve_newton";
 import { TanhTerm } from "./tanh_term";
@@ -40,13 +39,11 @@ export class EloMmr {
                 player.deltaTime = contestTime.getTime() - player.updateTime.getTime();
                 player.updateTime = contestTime;
             }
-
-            player.eventHistory.push(new PlayerEvent(new Rating(0, 0), 0, 0));
         }
 
         const tanhTerms: TanhTerm[] = [];
         for (const [player] of standings) {
-            const [sigPerformance, discreteDrift] = this.sigPerformanceAndDrift(weight, player.eventHistory.length - 1);
+            const [sigPerformance, discreteDrift] = this.sigPerformanceAndDrift(weight, player.numEvents);
             const continousDrift = this.driftPerSec * (player.deltaTime! / 1000);
             const sigDrift = Math.sqrt(discreteDrift + continousDrift);
             player.addNoiseBest(sigDrift, this.transferSpeed);
@@ -64,7 +61,7 @@ export class EloMmr {
                 muPerformance = Math.min(solved, performanceCeiling);
             }
 
-            const [sigPerformance] = this.sigPerformanceAndDrift(weight, player.eventHistory.length - 1);
+            const [sigPerformance] = this.sigPerformanceAndDrift(weight, player.numEvents);
             player.updateRatingWithLogistic(new Rating(muPerformance, sigPerformance), this.maxHistory);
         }
     }
@@ -83,8 +80,6 @@ export class EloMmr {
                 player_.deltaTime = contestTime.getTime() - player_.updateTime!.getTime();
                 player_.updateTime = contestTime;
             }
-
-            player_.eventHistory.push(new PlayerEvent(new Rating(0, 0), 0, 0));
         }
 
         const tanhTerms: TanhTerm[] = [];
@@ -92,7 +87,7 @@ export class EloMmr {
             if (low_ === low && high_ === high) {
                 player_ = player;
             }
-            const [sigPerformance, discreteDrift] = this.sigPerformanceAndDrift(weight, player.eventHistory.length - 1);
+            const [sigPerformance, discreteDrift] = this.sigPerformanceAndDrift(weight, player.numEvents);
             const continousDrift = this.driftPerSec * (player.deltaTime! / 1000);
             const sigDrift = Math.sqrt(discreteDrift + continousDrift);
             player.addNoiseBest(sigDrift, this.transferSpeed);
@@ -108,7 +103,7 @@ export class EloMmr {
             muPerformance = Math.min(solved, performanceCeiling);
         }
 
-        const [sigPerformance] = this.sigPerformanceAndDrift(weight, player.eventHistory.length - 1);
+        const [sigPerformance] = this.sigPerformanceAndDrift(weight, player.numEvents);
         player.updateRatingWithLogistic(new Rating(muPerformance, sigPerformance), this.maxHistory);
     }
 

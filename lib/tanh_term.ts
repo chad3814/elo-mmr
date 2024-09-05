@@ -1,6 +1,12 @@
 import { TANH_MULTIPLIER } from "./elo_mmr";
 import { Rating } from "./rating";
 
+export type TanhTermJSON = {
+    mu: number;
+    wArg: number;
+    wOut: number;
+}
+
 /**
  * represents... something
  */
@@ -23,12 +29,16 @@ export class TanhTerm {
         return new TanhTerm(r.mu, w / 2, w);
     }
 
-    toJSON() {
+    toJSON(): TanhTermJSON {
         return {
             mu: this.mu,
             wArg: this.wArg,
             wOut: this.wOut,
         };
+    }
+
+    static fromJSON(json: TanhTermJSON): TanhTerm {
+        return new TanhTerm(json.mu, json.wArg, json.wOut);
     }
 
     dup(): TanhTerm {

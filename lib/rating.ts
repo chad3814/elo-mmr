@@ -1,5 +1,10 @@
 import { DEFAULT_MU, DEFAULT_SIG } from "./elo_mmr";
 
+export type RatingJSON = {
+    mu: number;
+    sig: number;
+};
+
 /**
  * Represents a player's rating
  * `mu` is the mean of the rating
@@ -18,6 +23,11 @@ export class Rating {
             mu: this.mu,
             sig: this.sig,
         };
+    }
+
+    static fromJSON(obj: any): Rating {
+        const rating = new Rating(obj.mu, obj.sig);
+        return rating;
     }
 
     dup(): Rating {
