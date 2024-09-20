@@ -11,6 +11,15 @@ export const DEFAULT_WEIGHT_LIMIT = 0.2;
 export const DEFAULT_SIG_LIMIT = 80;
 export const BOUNDS: [number, number] = [-6000, 9000];
 
+/*
+          standing: Tuple[Player, int, int]
+            A tuples containing the player, and a placement
+            range, with first place being 0. For example, if there
+            are 4 players, and the first player places 1st, the second
+            player places 2nd, and the third and fourth players tie for
+            3rd, the standings would look like this: ``[(player1, 0, 0),
+            (player2, 1, 1), (player3, 2, 3), (player4, 2, 3)]``.
+ */
 export type Standing = [
     Player,
     number,
