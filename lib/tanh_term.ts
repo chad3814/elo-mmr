@@ -20,13 +20,13 @@ export class TanhTerm {
     baseValues(x: number): [number, number] {
         const z = (x - this.mu) * this.wArg;
         const val = -Math.tanh(z) * this.wOut;
-        const valPrime = (-Math.cosh(z)) ** -2 * this.wArg * this.wOut;
+        const valPrime = -(Math.cosh(z) ** -2)   * this.wArg * this.wOut;
         return [val, valPrime];
     }
 
     static fromRating(r: Rating): TanhTerm {
         const w = TANH_MULTIPLIER / r.sig;
-        return new TanhTerm(r.mu, w / 2, w);
+        return new TanhTerm(r.mu, w * 0.5, w);
     }
 
     toJSON(): TanhTermJSON {

@@ -2,20 +2,22 @@ import { DEFAULT_MU, DEFAULT_SIG } from "./elo_mmr";
 import { Rating, RatingJSON } from "./rating";
 import robustAverage from "./robust_average";
 import { TanhTerm, TanhTermJSON } from "./tanh_term";
+import Event, { EventJSON } from "./event";
 
 export type PlayerJSON = {
     approximatePosterior: RatingJSON;
     normalFactor: RatingJSON;
     updateTime?: number;
     logisticFactors: TanhTermJSON[];
-    numEvents: number;
+    events: EventJSON[];
 }
+
 export class Player {
     private normalFactor = new Rating(DEFAULT_MU, DEFAULT_SIG);
     private logisticFactors: TanhTerm[] = [];
+    public eventHistory: Event[] = [];
 
-    private _numEvents = 0;
-    get numEvents() { return this._numEvents; };
+    get numEvents() { return this.eventHistory.length; };
 
     constructor(public approximatePosterior: Rating, public updateTime?: Date, public deltaTime?: number) { }
 
@@ -45,7 +47,7 @@ export class Player {
         }
     }
 
-    updateRatingWithLogistic(performance: Rating, maxHistory?: number): void {
+    updateRatingWithLogistic(performance: Rating, place: number, maxHistory?: number): void {
         if (maxHistory != null) {
             while (this.logisticFactors.length >= maxHistory) {
                 const logistic = this.logisticFactors.shift()!;
@@ -60,7 +62,7 @@ export class Player {
         this.logisticFactors.push(TanhTerm.fromRating(performance));
 
         this.approximatePosterior = this.newApproximatePosterior(performance.sig);
-        this._numEvents++;
+        this.eventHistory.push(new Event(this.approximatePosterior, performance.mu, place));
     }
 
     newApproximatePosterior(performanceSig: number): Rating {
@@ -81,7 +83,7 @@ export class Player {
             normalFactor: this.normalFactor.toJSON(),
             updateTime: this.updateTime?.getTime(),
             logisticFactors: this.logisticFactors.map(lf => lf.toJSON()),
-            numEvents: this._numEvents,
+            events: this.eventHistory.map(e => e.toJSON()),
         };
     }
 
@@ -89,7 +91,7 @@ export class Player {
         const player = new Player(Rating.fromJSON(obj.approximatePosterior), obj.updateTime ? new Date(obj.updateTime) : undefined);
         player.normalFactor = Rating.fromJSON(obj.normalFactor);
         player.logisticFactors = obj.logisticFactors.map((lf: any) => TanhTerm.fromJSON(lf));
-        player._numEvents = obj.numEvents;
+        player.eventHistory = obj.events.map((e: any) => Event.fromJSON(e));
         return player;
     }
 
@@ -97,7 +99,7 @@ export class Player {
         const player = new Player(this.approximatePosterior.dup(), this.updateTime, this.deltaTime);
         player.normalFactor = this.normalFactor.dup();
         player.logisticFactors = this.logisticFactors.map(lf => lf.dup());
-        player._numEvents = this._numEvents;
+        player.eventHistory = this.eventHistory.map(e => e.dup());
         return player;
     }
 }

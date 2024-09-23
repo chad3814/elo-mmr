@@ -65,13 +65,10 @@ export class EloMmr {
             const f = (x: number) => computeLikelihoodSum(x, tanhTerms, low, high, this.mult);
             const solved = solveNewton(BOUNDS, f);
 
-            let muPerformance = solved;
-            if (performanceCeiling != null) {
-                muPerformance = Math.min(solved, performanceCeiling);
-            }
+            const muPerformance = performanceCeiling == null ? solved : Math.min(solved, performanceCeiling);
 
             const [sigPerformance] = this.sigPerformanceAndDrift(weight, player.numEvents);
-            player.updateRatingWithLogistic(new Rating(muPerformance, sigPerformance), this.maxHistory);
+            player.updateRatingWithLogistic(new Rating(muPerformance, sigPerformance), low, this.maxHistory);
         }
     }
 
@@ -113,7 +110,7 @@ export class EloMmr {
         }
 
         const [sigPerformance] = this.sigPerformanceAndDrift(weight, player.numEvents);
-        player.updateRatingWithLogistic(new Rating(muPerformance, sigPerformance), this.maxHistory);
+        player.updateRatingWithLogistic(new Rating(muPerformance, sigPerformance), low, this.maxHistory);
     }
 
     sigPerformanceAndDrift(weight: number, n: number): [number, number] {

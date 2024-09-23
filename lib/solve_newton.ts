@@ -1,7 +1,7 @@
 export type SolveNewtonIterator = (x: number) => [number, number];
 
 export function solveNewton([low, high]: [number, number], iterator: SolveNewtonIterator): number {
-    let guess = (low + high) / 2;
+    let guess = 0.5 * (low + high);
     while (true) {
         const [sum, sumPrime] = iterator(guess);
         const extrapolate = guess - sum / sumPrime;
@@ -16,6 +16,7 @@ export function solveNewton([low, high]: [number, number], iterator: SolveNewton
         if (low >= guess || guess >= high) {
             if (Math.abs(sum) > 1e-10) {
                 // possible failure to converge
+                console.error('possible failure to converge');
             }
             return guess;
         }
