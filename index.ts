@@ -1,3 +1,11 @@
+/********
+ * Copyright (c) 2021 Elo-MMR Project
+ * Copyright (c) 2023-2024 duhby
+ * Copyright (c) 2024-present Chad Walker
+ *
+ * MIT License, see LICENSE for more details.
+ ********/
+
 export { Player } from "./lib/player";
 export { Rating } from "./lib/rating";
 export { EloMmr } from "./lib/elo_mmr";

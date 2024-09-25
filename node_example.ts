@@ -28,10 +28,10 @@ function main(): void {
     const contest_time = new Date();
     elo_mmr.roundUpdate(standings, contest_time)
 
-    // const next_contest_time = new Date(contest_time.getMilliseconds() + 10000);
-    // // Assumes the outcome of the next competition is the same as the
-    // // previous, so the standings aren't changed.
-    // elo_mmr.roundUpdate(standings, next_contest_time)
+    const next_contest_time = new Date(contest_time.getMilliseconds() + 10000);
+    // Assumes the outcome of the next competition is the same as the
+    // previous, so the standings aren't changed.
+    elo_mmr.roundUpdate(standings, next_contest_time)
 
     for (const player of [player1, player2]) {
         console.log("\nrating_mu, rating_sig, perf_score, place");
