@@ -15,7 +15,7 @@ function evalEqual(term: TanhTerm, x: number, mult: 1 | 2): [number, number] {
     return [mult * val, mult * valPrime];
 }
 
-export function computeLikelihoodSum(x: number, tahnTerms: TanhTerm[], low: number, high: number, mult: 1 | 2): [number, number] {
+export function computeLikelihoodSum(x: number, tanhTerms: TanhTerm[], low: number, high: number, mult: 1 | 2): [number, number] {
 /*
     itr1 = (eval_less(term, x) for term in tanh_terms[:lo])
     itr2 = (eval_equal(term, x, mul) for term in tanh_terms[lo : hi + 1])
@@ -25,13 +25,13 @@ export function computeLikelihoodSum(x: number, tahnTerms: TanhTerm[], low: numb
     )
  */
 
-    const itr1 = tahnTerms.slice(0, low).map(
+    const itr1 = tanhTerms.slice(0, low).map(
         tanhTerm => evalLess(tanhTerm, x)
     );
-    const itr2 = tahnTerms.slice(low, high + 1).map(
+    const itr2 = tanhTerms.slice(low, high + 1).map(
         tanhTerm => evalEqual(tanhTerm, x, mult)
     );
-    const itr3 = tahnTerms.slice(high + 1).map(
+    const itr3 = tanhTerms.slice(high + 1).map(
         tanhTerm => evalGreater(tanhTerm, x)
     );
     const ret = [...itr1, ...itr2, ...itr3].reduce((acc, v) => [acc[0] + v[0], acc[1] + v[1]], [0, 0]);
