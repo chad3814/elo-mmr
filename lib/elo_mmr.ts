@@ -36,7 +36,7 @@ export class EloMmr {
         private transferSpeed = 1,
         private maxHistory?: number
     ) {
-        this.mult = (splitTies ? 2 : 1);
+        this.mult = (splitTies ? 1 : 2);
     }
 
     roundUpdate(standings: Standing[], contestTime: Date, weight = 1, performanceCeiling?: number) {

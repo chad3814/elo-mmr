@@ -69,7 +69,7 @@ export class Player {
         const weightNormal = this.normalFactor.sig ** -2;
         const mu = robustAverage(
             this.logisticFactors.slice(),
-            this.normalFactor.mu * weightNormal,
+            -this.normalFactor.mu * weightNormal,
             weightNormal
         );
         const sig = (this.approximatePosterior.sig ** -2 + performanceSig ** -2) ** -0.5;
